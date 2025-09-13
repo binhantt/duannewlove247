@@ -1,0 +1,34 @@
+export class User {
+  constructor(
+    public id: number,
+    public name: string,
+    public email: string,
+    public passwordHash?: string, // nullable nếu login Google
+    public google_id?: string,     // id Google OAuth
+    public provider: "local" | "google" | "facebook" | "apple" = "local",
+    public gender?: "male" | "female" | "other",
+    public age?: number,
+    public location?: string,
+    public bio?: string,
+    public interestsTags?: string[], // list tag
+    public avatarUrl?: string,
+    public photos?: string[],
+    public lookingFor?: "friendship" | "relationship" | "marriage" | "casual",
+    public occupation?: string,
+    public education?: string,
+    public is_verified: boolean = false,
+    public violationCount: number = 0,
+    public chatBanUntil?: Date,
+    public isChatLocked: boolean = false,
+    public isActive: boolean = true,
+    public role: "user" | "admin" | "moderator" = "user",
+    public subscriptionPlan: "free" | "premium" | "vip" = "free",
+    public subscriptionExpires?: Date,
+    public emailVerified: boolean = false,
+    public verificationToken?: string,
+    public verificationExpires?: Date,
+    public lastLoginAt?: Date,
+    public createdAt?: Date,
+    public updatedAt?: Date,
+  ) {}
+}
