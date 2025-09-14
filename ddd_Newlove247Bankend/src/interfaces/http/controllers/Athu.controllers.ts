@@ -2,9 +2,10 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { IUserRepository } from "../../../domain/repositories/IUserRepository";
 import { User } from "../../../domain/entities/Users";
+import { verifyGoogleToken } from "../../../shared/utils/GoogleVerify";
 
 export class AuthController {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(private userRepository: IUserRepository) { }
 
   // Đăng ký user local
   public async register(req: Request, res: Response) {
@@ -47,43 +48,47 @@ export class AuthController {
       return res.status(500).json({ error: "Internal server error" });
     }
   }
-
   // Đăng nhập / đăng ký Google
   public async googleAuth(req: Request, res: Response) {
     try {
-      const { googleId, name, email, avatarUrl } = req.body;
-    console.log(googleId, name, email, avatarUrl);
-      if (!googleId) {
-        return res.status(400).json({ error: "Google ID missing" });
-      }
+      const { token } = req.body; // ✅ nhận token, không phải googleId
+      if (!token) return res.status(400).json({ error: "Missing Google token" });
 
+      // Verify token với Google
+      const payload = await verifyGoogleToken(token);
+      if (!payload) return res.status(401).json({ error: "Invalid Google token" });
+
+      console.log("Google Payload:", payload);
+
+      const { sub: googleId, name, email, picture } = payload;
+
+      // Tìm user theo googleId
       let user = await this.userRepository.findByGoogleId(googleId);
 
       if (!user) {
         const newUser = new User(
-          0,
-          name,
-          email,
-          undefined, // password
-          googleId,
-          "google",
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          avatarUrl,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          0,
-          undefined,
-          false,
-          true,
-          "user",
-          "free"
+        0,
+        name || "Unknown",
+        email || "",
+        undefined, // password
+        googleId,
+        "google",
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        picture || '',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        0,
+        undefined,
+        false,
+        true,
+        "user",
+        "free"
         );
 
         user = await this.userRepository.createGoogleUser(newUser);
@@ -95,4 +100,5 @@ export class AuthController {
       return res.status(500).json({ error: "Internal server error" });
     }
   }
+
 }
