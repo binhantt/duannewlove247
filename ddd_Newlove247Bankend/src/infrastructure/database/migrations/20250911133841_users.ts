@@ -7,6 +7,7 @@ export async function up(knex: Knex): Promise<void> {
     table.string("email").notNullable().unique();    // email
     table.string("password_hash");                   // mật khẩu (nullable nếu login Google)
     table.string("google_id");                       // id Google OAuth
+    table.string("facebook_id");                     // id Facebook OAuth
     table.enum("provider", ["local", "google", "facebook", "apple"])
       .notNullable()
       .defaultTo("local");                        // loại đăng nhập

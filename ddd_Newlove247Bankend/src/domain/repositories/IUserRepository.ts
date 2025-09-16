@@ -7,4 +7,6 @@ export interface IUserRepository {
     findById(id: string): Promise<User | null>;
     findByGoogleId(googleId: string): Promise<User | null>;
     createGoogleUser(user: User): Promise<User>;
+    createFacebookUser(user: User): Promise<User>;
+    findByFacebookId(facebookId: string): Promise<User | null>;
 }

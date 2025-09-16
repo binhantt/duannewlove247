@@ -1,9 +1,9 @@
 import { IUserRepository } from "../../../domain/repositories/IUserRepository";
 import { User } from "../../../domain/entities/Users";
 import { Knex } from "knex";
-
+import { db } from "../../config/database.config";
 class UserRepositoryMysql implements IUserRepository {
-  constructor(private db: Knex) { }
+  constructor(private  db: Knex) { }
 
   async create(user: User): Promise<User> {
     const [created] = await this.db<User>("users")
@@ -54,13 +54,33 @@ class UserRepositoryMysql implements IUserRepository {
         google_id: user.google_id,  // chú ý sửa chính tả, trước bạn ghi sai gooole_id
         name: user.name,
         email: user.email,
-        avatar_url: user.avatarUrl ?? null,
+        avatar_url: user.avatar_url ?? undefined,
         role: user.role,
         created_at: new Date(),   // ✅ snake_case
         updated_at: new Date(),   // ✅ snake_case
       })
       .returning("*");
+    console.log(created)
     return created;
+  }
+  async createFacebookUser(user: User): Promise<User> {
+    const [created] = await this.db<User>("users")
+      .insert({
+        facebook_id: user.facebook_id,
+        name: user.name,
+        email: user.email,
+        avatar_url: user.avatar_url ?? undefined,
+        role: user.role,
+        created_at: new Date(),
+        updated_at: new Date(),
+      })
+      .returning("*");
+    return created;
+  }
+  async findByFacebookId(facebookId: string): Promise<User | null> {
+    return (await this.db<User>("users")
+      .where({ facebook_id: facebookId })
+      .first()) ?? null;
   }
 }
 

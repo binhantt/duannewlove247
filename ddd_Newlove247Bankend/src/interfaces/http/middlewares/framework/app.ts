@@ -1,6 +1,6 @@
 import express from "express";
 import session from "express-session";
-import passport from "../../../../infrastructure/framework/passport";
+import passport from "../../../../infrastructure/auth/passportGoole";
 
 const app = express();
 
