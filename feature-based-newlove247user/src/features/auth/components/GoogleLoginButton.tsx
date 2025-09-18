@@ -14,7 +14,6 @@ export default function GoogleButton() {
         const user: any = jwtDecode(token);
         console.log("Google user:", user);
 
-        // ✅ Gửi token về backend để verify + tạo JWT của bạn
         fetch("http://localhost:3000/api/users/auth/google", {
           method: "POST",
           headers: { "Content-Type": "application/json" }
