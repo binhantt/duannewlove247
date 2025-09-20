@@ -3,7 +3,7 @@ export class User {
     public id: number,
     public name: string,
     public email: string,
-    public password_hash?: string,
+   
     public google_id?: string,
     public facebook_id?: string,
     public provider: "local" | "google" | "facebook" | "apple" = "local",

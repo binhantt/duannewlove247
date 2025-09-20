@@ -9,9 +9,8 @@ const userRouter = express.Router();
     basePath: '/auth',
     routes: [
     {   method: 'post',path: '/google/callback',handler : AuthController.GoogleCallback},
-    {   method: 'get',path: '/facebook',handler : AuthController.GetFacebookAuth},
+    {  method  : "get", path : "facebook", handler : AuthController.GetFacebookAuth},
     {   method: 'get',path: '/facebook/callback',handler : AuthController.FacebookCallback},
-    // {   method: 'get',path: '/Login',handler : AuthController.GetLogin},
     ],
   },
 ]);

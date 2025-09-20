@@ -6,4 +6,5 @@ export interface IUserRepository {
     delete(id: string): Promise<void>;
     findById(id: string): Promise<User | null>;
     findByEmail(email: string): Promise<User | null>;  
+    findByFacebookId(facebook_id: string): Promise<User | null>;
 }

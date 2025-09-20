@@ -29,7 +29,7 @@ export class AuthController {
   
       const newUser: User = {
         email: decoded.email,
-        password_hash: undefined,
+      
         name: decoded.name,
         role: "user",
         created_at: new Date(),
@@ -59,10 +59,7 @@ export class AuthController {
         provider: "google",
       };
   
-      if (req.body.password) {
-        const salt = await bcrypt.genSalt(10);
-        newUser.password_hash = await bcrypt.hash(req.body.password, salt);
-      }
+    
   
       const userRepository = new UserRepositoryMysql(db);
   
@@ -84,7 +81,7 @@ export class AuthController {
       });
   
       // Lưu refresh token vào DB
-      await userRepository.update({...user, access_token: accessToken, refresh_token: refreshToken});
+      await userRepository.update({...user,last_login_at: new Date(), access_token: accessToken, refresh_token: refreshToken});
   
       return res.json({
         message: "Google login success",
@@ -111,35 +108,43 @@ export class AuthController {
     })(req, res, next);
   }
 
-  static FacebookCallback(req: Request, res: Response, next: NextFunction) {
-    console.log("🚀 [FacebookCallback] Nhận callback từ Facebook");
-  
+  static async FacebookCallback(req: Request, res: Response, next: NextFunction) {
     return passportFacebook.authenticate(
       "facebook",
       { failureRedirect: "/login" },
-      (err, user) => {
-        if (err) {
-          console.error("❌ Lỗi Facebook Passport:", err);
-          return next(err);
-        }
-        if (!user) {
-          return res.redirect(process.env.CLIENT_URL + "");
-        }
+      async (err, user: User) => {
+        try {
+          if (err) return next(err);
+          if (!user) return res.redirect(process.env.CLIENT_URL || "/");
   
-        req.logIn(user, (err) => {
-          if (err) {
-            console.error("❌ Lỗi khi req.logIn:", err);
-            return next(err);
-          }
+          const userRepository = new UserRepositoryMysql(db);
   
-          console.log("✅ Đăng nhập Facebook thành công!");
-          console.log("👉 User hiện tại:", user);
-          return res.redirect(process.env.CLIENT_URL + "/");
-        });
+          // --- Tạo JWT token ---
+          const payload = { id: user.id, email: user.email, role: user.role };
+          const accessToken = jwt.sign(payload, AuthController.ACCESS_SECRET, {
+            expiresIn: AuthController.ACCESS_EXPIRES,
+          });
+          const refreshToken = jwt.sign(payload, AuthController.REFRESH_SECRET, {
+            expiresIn: AuthController.REFRESH_EXPIRES,
+          });
+  
+          // --- Lưu token vào DB ---
+          await userRepository.update({ ...user, access_token: accessToken, refresh_token: refreshToken });
+  
+          // --- Đăng nhập và redirect client ---
+          req.logIn(user, (err) => {
+            if (err) return next(err);
+            return res.redirect(
+              `${process.env.CLIENT_URL || ""}/?accessToken=${accessToken}&refreshToken=${refreshToken}`
+            );
+          });
+        } catch (error) {
+          next(error);
+        }
       }
     )(req, res, next);
-    
   }
+  
 
  
 }

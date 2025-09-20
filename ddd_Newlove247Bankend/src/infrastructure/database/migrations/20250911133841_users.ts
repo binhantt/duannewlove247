@@ -5,7 +5,7 @@ export async function up(knex: Knex): Promise<void> {
     table.increments("id").primary();
     table.string("name").notNullable();
     table.string("email").notNullable().unique().defaultTo("");
-    table.string("password_hash");
+   
     table.string("google_id");
     table.string("facebook_id");
     table.enum("provider", ["local", "google", "facebook", "apple"])
