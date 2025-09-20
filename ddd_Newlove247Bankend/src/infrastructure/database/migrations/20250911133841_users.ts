@@ -2,42 +2,46 @@ import type { Knex } from "knex";
 
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable("users", (table) => {
-    table.increments("id").primary(); // id tự tăng
-    table.string("name").notNullable();              // tên
-    table.string("email").notNullable().unique().defaultTo("");    // email
-    table.string("password_hash");                   // mật khẩu (nullable nếu login Google)
-    table.string("google_id");                       // id Google OAuth
-    table.string("facebook_id");                     // id Facebook OAuth
+    table.increments("id").primary();
+    table.string("name").notNullable();
+    table.string("email").notNullable().unique().defaultTo("");
+    table.string("password_hash");
+    table.string("google_id");
+    table.string("facebook_id");
     table.enum("provider", ["local", "google", "facebook", "apple"])
       .notNullable()
-      .defaultTo("local");                        // loại đăng nhập
-    table.enum("gender", ["male", "female", "other"]); // giới tính
-    table.integer("age");                            // tuổi
-    table.string("location");                        // vị trí
-    table.text("bio");                               // mô tả cá nhân
-    table.specificType("interests_tags", "json");    // sở thích dạng list tag
-    table.string("avatar_url");                      // avatar
-    table.specificType("photos", "json");            // danh sách ảnh
-    table.enum("looking_for", ["friendship", "relationship", "marriage", "casual"]); // nhu cầu
-    table.string("occupation");                      // nghề nghiệp
-    table.string("education");                       // học vấn
-    table.boolean("is_verified").notNullable().defaultTo(false); // xác minh
-    table.integer("violation_count").notNullable().defaultTo(0); // số lần vi phạm
-    table.dateTime("chat_ban_until");                // hết hạn cấm chat
-    table.boolean("is_chat_locked").notNullable().defaultTo(false); // khóa chat
-    table.boolean("is_active").notNullable().defaultTo(true); // active/deactive
+      .defaultTo("local");
+    table.enum("gender", ["male", "female", "other"]);
+    table.integer("age");
+    table.string("location");
+    table.text("bio");
+    table.specificType("interests_tags", "json");
+    table.string("avatar_url");
+    table.specificType("photos", "json");
+    table.enum("looking_for", ["friendship", "relationship", "marriage", "casual"]);
+    table.string("occupation");
+    table.string("education");
+    table.boolean("is_verified").notNullable().defaultTo(false);
+    table.integer("violation_count").notNullable().defaultTo(0);
+    table.dateTime("chat_ban_until");
+    table.boolean("is_chat_locked").notNullable().defaultTo(false);
+    table.boolean("is_active").notNullable().defaultTo(true);
     table.enum("role", ["user", "admin", "moderator"])
       .notNullable()
-      .defaultTo("user");                         // phân quyền
+      .defaultTo("user");
     table.enum("subscription_plan", ["free", "premium", "vip"])
       .notNullable()
-      .defaultTo("free");                         // gói dịch vụ
-    table.dateTime("subscription_expires");          // hết hạn gói
-    table.boolean("email_verified").notNullable().defaultTo(false); // xác minh email
-    table.string("verification_token");              // token xác minh
-    table.dateTime("verification_expires");          // hạn token
+      .defaultTo("free");
+    table.dateTime("subscription_expires");
+    table.boolean("email_verified").notNullable().defaultTo(false);
+    table.string("verification_token");
+    table.dateTime("verification_expires");
 
-    table.dateTime("last_login_at");                 // lần login gần nhất
+    // --- THÊM ACCESS TOKEN & REFRESH TOKEN ---
+    table.text("access_token");      // lưu token truy cập OAuth
+    table.text("refresh_token");     // lưu token refresh nếu có
+
+    table.dateTime("last_login_at");
     table.timestamp("created_at").defaultTo(knex.fn.now());
     table.timestamp("updated_at").defaultTo(knex.fn.now());
   });

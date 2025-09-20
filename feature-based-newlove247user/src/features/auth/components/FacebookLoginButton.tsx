@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 import axios from "axios";
 
@@ -8,13 +8,11 @@ export default function FacebookLoginButton() {
   const [loading, setLoading] = useState(false);
   const [clicked, setClicked] = useState(false);
 
+
   const handleLogin = async () => {
     setLoading(true);
     setClicked(true);
-
-    // 👉 Gọi backend, backend sẽ redirect sang Facebook
-    window.location.href = process.env.NEXT_PUBLIC_Fb + "/auth/facebook";
-    // const response = await axios.get(process.env.NEXT_PUBLIC_Fb + "/auth/facebook");
+    window.location.href = " http://localhost:3000/api/users/auth/facebook/callback";
     
   };
 

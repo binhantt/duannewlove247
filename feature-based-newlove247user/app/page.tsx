@@ -3,11 +3,8 @@
 import GoogleLoginButton from "@/src/features/auth/components/GoogleLoginButton";
 import FacebookLoginButton from "@/src/features/auth/components/FacebookLoginButton";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-<<<<<<< HEAD
 import { Heart } from 'lucide-react';
 import { useState, useEffect } from 'react';
-=======
->>>>>>> 0995047c67afe8e9bddcb3fda0b108b9abcf0ca7
 
 export default function Home() {
   const [hearts, setHearts] = useState<Array<{left: string, top: string, delay: string, size: string}>>([]);
@@ -32,7 +29,6 @@ export default function Home() {
   }, []);
 
   return (
-<<<<<<< HEAD
     <div className="min-h-screen bg-gradient-to-br from-pink-400 via-purple-500 to-indigo-600 flex items-center justify-center p-6 relative overflow-hidden">
       
       {/* Floating Hearts Background */}
@@ -181,13 +177,6 @@ export default function Home() {
           100% { background-position: 0% 50%; }
         }
       `}</style>
-=======
-    <div>
-    
-        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
-          <GoogleLoginButton />
-        </GoogleOAuthProvider>
->>>>>>> 0995047c67afe8e9bddcb3fda0b108b9abcf0ca7
     </div>
   );
 }

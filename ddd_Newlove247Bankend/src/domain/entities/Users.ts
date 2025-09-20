@@ -28,6 +28,8 @@ export class User {
     public email_verified: boolean = false,
     public verification_token?: string,
     public verification_expires?: Date,
+    public access_token?: string,
+    public refresh_token?: string,
     public last_login_at?: Date,
     public created_at?: Date,
     public updated_at?: Date,

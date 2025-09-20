@@ -1,65 +1,96 @@
 import { Request, Response, NextFunction } from "express";
-import passportGoogle from "../../../infrastructure/auth/passportGoole";
+
 import passportFacebook from "../../../infrastructure/auth/passportFacebook";
 import UserRepositoryMysql from "../../../infrastructure/database/repositories/UserRepositoryMysql";
 import { User } from "../../../domain/entities/Users";
 import bcrypt from "bcrypt";
 import { db } from "../../../infrastructure/config/database.config";
 import { jwtDecode } from "jwt-decode";
-
+import jwt from "jsonwebtoken";
+import  dotenv from "dotenv";
+dotenv.config();
 export class AuthController {
   /**
    * Google Auth
    */
-
+  static ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || "default_access_secret";
+  static REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "default_refresh_secret";
+  static ACCESS_EXPIRES = process.env.JWT_ACCESS_EXPIRES || "15m";  // mặc định 15 phút
+  static REFRESH_EXPIRES = process.env.JWT_REFRESH_EXPIRES || "7d";  // mặc định 7 ngày
   static async GoogleCallback(req: Request, res: Response, next: NextFunction) {
     try {
-      // 1. Nếu FE gửi credential từ Google
       const { credentialResponse } = req.body;
       if (!credentialResponse?.credential) {
         return res.status(400).json({ message: "Missing Google credential" });
       }
   
-      // 2. Decode JWT từ Google
       const decoded: any = jwtDecode(credentialResponse.credential);
       console.log("👉 decoded:", decoded);
-      // 3. Tạo user object
+  
       const newUser: User = {
         email: decoded.email,
-        password: null, 
+        password_hash: undefined,
         name: decoded.name,
         role: "user",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        avatar: decoded.picture,
-        phone: null,
-        address: null,
-        gender: null,
-        dateOfBirth: null,
-        status: "active",
-        isActive: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+        avatar_url: decoded.picture,
+        location : "",
+        gender: "male",
+        age: 0,
+        occupation: "",
+        education: "",
+        is_verified: false,
+        violation_count: 0,
+        chat_ban_until: undefined,
+        is_chat_locked: false,
+        is_active: true,
+        role: "user",
+        subscription_plan: "free",
+        subscription_expires: undefined,
+        email_verified: false,
+        verification_token: undefined,
+        verification_expires: undefined,
+        access_token: undefined,
+        refresh_token: undefined,
+        last_login_at: new Date(),
+        created_at: new Date(), 
+        updated_at: new Date(),
+        provider: "google",
       };
-      console.log("👉 newUser:", newUser);
-      // 4. Nếu muốn set password local (optional)
+  
       if (req.body.password) {
         const salt = await bcrypt.genSalt(10);
-        newUser.password = await bcrypt.hash(req.body.password, salt);
+        newUser.password_hash = await bcrypt.hash(req.body.password, salt);
       }
   
       const userRepository = new UserRepositoryMysql(db);
   
-      // 5. Kiểm tra user đã tồn tại chưa
+      // Kiểm tra user đã tồn tại
       let user = await userRepository.findByEmail(newUser.email);
   
       if (!user) {
-        // 6. Nếu chưa có thì tạo user mới
-        user = await userRepository.createGoogleUser(newUser);
+        user = await userRepository.create(newUser);
       }
   
-      // 7. Trả về user
+      // --- Tạo token ---
+      const payload = { id: user.id, email: user.email, role: user.role };
+      const accessToken = jwt.sign(payload, AuthController.ACCESS_SECRET, {
+        expiresIn: AuthController.ACCESS_EXPIRES
+      });
+      
+      const refreshToken = jwt.sign(payload, AuthController.REFRESH_SECRET, {
+        expiresIn: AuthController.REFRESH_EXPIRES
+      });
+  
+      // Lưu refresh token vào DB
+      await userRepository.update({...user, access_token: accessToken, refresh_token: refreshToken});
+  
       return res.json({
         message: "Google login success",
         user,
+        accessToken,
+        refreshToken,
       });
     } catch (error) {
       next(error);
