@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
-import AuthBackground from "../components/AuthBackground";
-import AuthCard from "../components/AuthCard";
-import AuthLogo from "../components/AuthLogo";
-import AuthTitle from "../components/AuthTitle";
-import GoogleLoginButton from "../components/GoogleLoginButton";
-import FacebookLoginButton from "../components/FacebookLoginButton";
+import AuthBackground from "../../features/auth/components/AuthBackground";
+import AuthCard from "../../features/auth/components/AuthCard";
+import AuthLogo from "../../features/auth/components/AuthLogo";
+import AuthTitle from "../../features/auth/components/AuthTitle";
+import GoogleLoginButton from "../../features/auth/components/GoogleLoginButton";
+import FacebookLoginButton from "../../features/auth/components/FacebookLoginButton";
 
 export default function AuthPage() {
   const [hearts, setHearts] = useState<any[]>([]);

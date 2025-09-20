@@ -13,12 +13,14 @@ passportGoole.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
       callbackURL: process.env.GOOGLE_CALLBACK_URL || "",
     },
-   
+    
     async (accessToken, refreshToken, profile, done) => {
       try {
         let user = await db<User>("users").where({ google_id: profile.id }).first();
+        console.log(user)
         if (!user) {
-          // Nếu chưa có thì tạo mới
+        
+
           const [newUser] = await db<User>("users")
             .insert({
               name: profile.displayName,
@@ -28,7 +30,7 @@ passportGoole.use(
               is_verified: true,
             })
             .returning("*");
-          console.log(newUser)
+          user = newUser;
         }
         console.log(user)
         return done(null, user);

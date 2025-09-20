@@ -64,22 +64,47 @@ class UserRepositoryMysql implements IUserRepository {
     return created;
   }
   async createFacebookUser(user: User): Promise<User> {
-    const [created] = await this.db<User>("users")
-      .insert({
+
+    const existing = await this.db<User>("users")
+      .where("email", user.email)
+      .first();
+  
+    if (existing) {
+      return existing;
+    }
+  
+    // 🚀 Insert user mới (MySQL tự tăng id)
+    const [id] = await this.db("users").insert(
+      {
         facebook_id: user.facebook_id,
         name: user.name,
         email: user.email,
-        avatar_url: user.avatar_url ?? undefined,
-        role: user.role,
+        avatar_url: user.avatar_url ?? null,
+        role: user.role ?? "user",
         created_at: new Date(),
         updated_at: new Date(),
-      })
-      .returning("*");
-    return created;
+      },
+      ["id"] // để knex trả về id mới (MySQL 8 hỗ trợ)
+    );
+  
+    // 📌 Lấy user vừa insert ra
+    const newUser = await this.db<User>("users")
+      .where("id", typeof id === "object" ? id.id : id)
+      .first();
+  
+    return newUser!;
   }
+  
+  
+  
   async findByFacebookId(facebookId: string): Promise<User | null> {
     return (await this.db<User>("users")
       .where({ facebook_id: facebookId })
+      .first()) ?? null;
+  }
+  async findByEmail(email: string): Promise<User | null> {
+    return (await this.db<User>("users")
+      .where({ email: email })
       .first()) ?? null;
   }
 }

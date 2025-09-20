@@ -19,22 +19,29 @@ passportFacebook.use(
          console.log("👉 Google Strategy profile:", profile);
         // Kiểm tra user đã tồn tại chưa
         let user = await db<User>("users").where({ facebook_id: profile.id }).first();
-
+       
         if (!user) {
+           if ( profile.emails?.[0]?.value === null ) {
+            return done(new Error("Email not found"), null);
+           }
+           if ( profile.photos?.[0]?.value === null ) {
+            return done(new Error("Avatar not found"), null);
+           }
           // Nếu chưa có thì tạo mới
           const [newUser] = await db<User>("users")
             .insert({
+
               name: profile.displayName,
-              email: profile.emails?.[0]?.value, // email có thể undefined
+              email: profile.emails?.[0]?.value ?? null, // email có thể undefined
               facebook_id: profile.id,
               provider: "facebook",
-              avatar_url: profile.photos?.[0]?.value,
+              avatar_url: profile.photos?.[0]?.value ?? null,
               is_verified: true,
             })
             .returning("*");
           user = newUser;
         }
-
+        console.log(user)
         return done(null, user);
       } catch (err) {
         return done(err, null);

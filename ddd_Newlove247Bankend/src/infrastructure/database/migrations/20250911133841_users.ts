@@ -4,7 +4,7 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable("users", (table) => {
     table.increments("id").primary(); // id tự tăng
     table.string("name").notNullable();              // tên
-    table.string("email").notNullable().unique();    // email
+    table.string("email").notNullable().unique().defaultTo("");    // email
     table.string("password_hash");                   // mật khẩu (nullable nếu login Google)
     table.string("google_id");                       // id Google OAuth
     table.string("facebook_id");                     // id Facebook OAuth
