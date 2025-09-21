@@ -1,10 +1,10 @@
 README — Newlove247 Admin (Vue Feature-based)
 🚀 Giới thiệu
 
-Newlove247 Admin là ứng dụng quản trị được xây dựng trên Vue 3 + Vite + TypeScript, theo kiến trúc feature-based để dễ dàng maintain, mở rộng và onboard dev mới.
+Newlove247 Admin là ứng dụng quản trị được xây dựng trên Vue 3 + Vite + JS, theo kiến trúc feature-based để dễ dàng maintain, mở rộng và onboard dev mới.
 Mục tiêu: cung cấp hệ thống quản trị (admin panel) cho các nghiệp vụ quản lý người dùng, sản phẩm, đơn hàng, báo cáo.
 ```
-📂 Cấu trúc thư mục (Feature-based)
+📂 Cấu trúc thư mục (Feature-based)/
 features-based_vue_Newlove247_admin/
 ├── public/                  # Tài nguyên tĩnh
 ├── src/
